@@ -60,9 +60,6 @@ if status == "200":
 
     #To-do: Save more metadata stuff in the future
 
-    # Write the book ID in a file
-    with open(bookPath+"/de"+cid, 'wb') as BookIDWrite:
-        pass
 
     ########## RETRIEVING PREVIEW METADATA ##########
 
