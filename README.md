@@ -12,8 +12,10 @@ Install the required dependencies
 ```bash
 pip install requests urllib3
 ```
-... and run the script.
-
+... and simply run the script.
+```bash
+python bookrunner.py --ID [Book ID here]
+```
 
 ## To-Do:
 * Clean the script
