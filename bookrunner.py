@@ -2,61 +2,61 @@ __author__      = "Celest"
 import requests
 import urllib.request
 import json
+import click
 import os
 
-
-cid = input("BookWalker book ID?\n>>")[2:]
+click.secho(f"\nBook ID?", fg="green")
+Cid = input(">>")[2:]
 
 
 ########## RETRIEVING GENERAL METADATA ##########
 
 # retrieving JSON data from requested preview
-url = "https://viewer-trial.bookwalker.jp/trial-page/c?cid="+cid+"&BID=0"
-response = urllib.request.urlopen(url)
+Cid_Url = urllib.request.urlopen("https://viewer-trial.bookwalker.jp/trial-page/c?cid="+Cid+"&BID=0")
 # Loading JSON data of the page
-data = json.loads(response.read())
+Data = json.loads(Cid_Url.read())
 
 # Reading values from JSON data
-status = data['status']
+Status = Data['status']
 
 
-if status == "200":
+if Status == "200":
 
-    baseURL = data['url']
-    bookName = data['cti']
-    lp = data['lp']
-    cty = data['cty']
-    lin = data['lin']
-    lpd = data['lpd']
-    lin = data['bs']
-    auth_info = data['auth_info']
-    pfcd = auth_info['pfCd']
-    policy = auth_info['Policy']
-    signature = auth_info['Signature']
-    KeyPairId = auth_info['Key-Pair-Id']
+    Base_URL = Data['url']
+    Book_Name = Data['cti']
+    Lp = Data['lp']
+    Cty = Data['cty']
+    Lin = Data['lin']
+    Lpd = Data['lpd']
+    Bs = Data['bs']
+    Auth_info = Data['auth_info']
+    Pfcd = Auth_info['pfCd']
+    Policy = Auth_info['Policy']
+    Signature = Auth_info['Signature']
+    Key_Pair_Id = Auth_info['Key-Pair-Id']
 
-    print(f"Downloading {bookName}'s preview files...")
-    print("------------------------")
+    click.secho(f"\nDownloading {Book_Name}'s preview files...", fg="green")
+    click.secho(f"---------------------------------------", fg="bright_cyan")
 
     # Creating authentification string
-    authString = '?pfCd='+pfcd+'&Policy='+policy+'&Signature='+signature+'&Key-Pair-Id='+KeyPairId
+    Auth_String = '?pfCd='+Pfcd+'&Policy='+Policy+'&Signature='+Signature+'&Key-Pair-Id='+Key_Pair_Id
 
 
     # Creating book path
-    bookPath = "Preview "+bookName
-    os.makedirs(bookPath, exist_ok=True)
+    Book_Path = "Preview "+Book_Name
+    os.makedirs(Book_Path, exist_ok=True)
 
 
     # If LN = 0. If Manga = 1.
-    if cty == 0:
-        baseURL= baseURL+"normal_default/"
+    if Cty == 0:
+        Base_URL= Base_URL+"normal_default/"
 
 
     ########## RETRIEVING PREVIEW METADATA ##########
 
     # Retrieving the book's metadata and download it
-    MetadataLink = baseURL+"configuration_pack.json"+authString
-    urllib.request.urlretrieve(MetadataLink, bookPath+"/metadata.json")
+    Metadata_Link = Base_URL+"configuration_pack.json"+Auth_String
+    urllib.request.urlretrieve(Metadata_Link, Book_Path+"/metadata.json")
 
     #To-do: Save more metadata stuff in the future
 
@@ -64,12 +64,12 @@ if status == "200":
     ########## RETRIEVING PREVIEW METADATA ##########
 
     # Creating chapters path
-    ChaptersPath = bookPath+"/Chapters"
-    os.makedirs(ChaptersPath, exist_ok=True)
+    Chapters_Path = Book_Path+"/Chapters"
+    os.makedirs(Chapters_Path, exist_ok=True)
 
     # Creating pages path
-    PagesPath = bookPath+"/Pages"
-    os.makedirs(PagesPath, exist_ok=True)
+    Pages_Path = Book_Path+"/Pages"
+    os.makedirs(Pages_Path, exist_ok=True)
 
 
     # ##Explaining the concept:
@@ -80,45 +80,44 @@ if status == "200":
 
 
     # Re-calling the metadata link for now because if I load the JSON file it returns reading errors                              
-    BookMetadata = urllib.request.urlopen(MetadataLink)
-    BookMetadata = json.loads(BookMetadata.read())
+    Book_Metadata = urllib.request.urlopen(Metadata_Link)
+    Book_Metadata = json.loads(Book_Metadata.read())
 
     # Reading the "configuration"."contents"
-    MetaContents = BookMetadata['configuration']['contents']
+    Meta_Contents = Book_Metadata['configuration']['contents']
 
-    PagesCountName = 0
+    Pages_Count_Name = 0
 
     # Doing the process for each Chapters ("contents")
-    for d in MetaContents:
+    for d in Meta_Contents:
 
-        keyName = d['file']
+        Key_Name = d['file']
 
-        PageCount = BookMetadata[keyName]['FileLinkInfo']['PageCount']
+        Page_Count = Book_Metadata[Key_Name]['FileLinkInfo']['PageCount']
 
-        for i in range(PageCount):
-            PageShow = PageCount + 1
-            print("Downloading "+os.path.basename(keyName)+" page "+str(i))
-            pageURL = baseURL+keyName+"/"+str(i)+".jpeg"+authString
-            PagesCountName += 1
+        for i in range(Page_Count):
+            click.secho(f"Downloading "+os.path.basename(Key_Name)+" page "+str(i), fg="white")
+            Page_URL = Base_URL+Key_Name+"/"+str(i)+".jpeg"+Auth_String
+            Pages_Count_Name += 1
 
 
     # Saving the pages. Doing it in a weird process because BookWalker blocks some kind of script scraping
-            Save = requests.get(pageURL)
+            Save = requests.get(Page_URL)
 
-            chaptersName = os.path.basename(d['file'])
-            SavePath = ChaptersPath+"/"+chaptersName
-            os.makedirs(SavePath, exist_ok=True)
-            with open(SavePath+"/"+str(i)+".jpg", 'wb') as outfile:
+            Chapters_Name = os.path.basename(d['file'])
+            Save_Path = Chapters_Path+"/"+Chapters_Name
+            os.makedirs(Save_Path, exist_ok=True)
+            with open(Save_Path+"/"+str(i)+".jpg", 'wb') as outfile:
                 outfile.write(Save.content)
 
 
-            SavePagesPath = PagesPath+"/"
-            os.makedirs(SavePagesPath, exist_ok=True)
-            with open(SavePagesPath+"/"+str(PagesCountName)+".jpg", 'wb') as outfile:
+            Save_Pages_Path = Pages_Path+"/"
+            os.makedirs(Save_Pages_Path, exist_ok=True)
+            with open(Save_Pages_Path+"/"+str(Pages_Count_Name)+".jpg", 'wb') as outfile:
                 outfile.write(Save.content)
 
-    print("------------------------")
-    print("Download finished.")
+    click.secho(f"---------------------------------------", fg="bright_cyan")
+    click.secho(f"Download finished.", fg="green")
 
 else:
-    print("\nWrong book ID, or the preview isn't released yet.\nMake sure your ID looks like this:\nde5bddb97a-1848-469f-bd3d-c0b926b8cbd3")
+    click.secho(f"\nWrong book ID, or the preview isn't released yet.\nMake sure your ID looks like this:\nde5bddb97a-1848-469f-bd3d-c0b926b8cbd3", fg="red")
