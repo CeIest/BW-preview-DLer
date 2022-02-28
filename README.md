@@ -1,6 +1,6 @@
-# BookWalker preview DLer
+# BW preview DLer
 
-bookrunner is a private Python script that downloads public preview books on [BookWalker](https://bookwalker.jp/). 
+bookrunner is a Python script that downloads public preview books on [BookWalker](https://bookwalker.jp/). 
 
 Heavily inspired by [Atemu's repository](https://github.com/Atemu/bookwalker-dl).
 
@@ -8,7 +8,7 @@ Disclaimer: this script does ***NOT*** download or rip the paid ebooks from Book
 
 ## Installation
 
-Install the required dependencies
+Install the required dependencies...
 ```bash
 pip install requests urllib3 click
 ```
@@ -17,7 +17,9 @@ pip install requests urllib3 click
 python bookrunner.py --ID [Book ID here]
 ```
 
+The book ID can be found in its respective url. 
+example: `dee3fcbcd2-ee0a-4c27-b944-8b0aa397ea02`
+
 ## To-Do:
-* Clean the script
-* Improve the user interface
-* Write more in the readme
+* Maybe save more metadata about the book
+* Write more stuff about how the script works
