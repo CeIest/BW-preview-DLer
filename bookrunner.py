@@ -1,15 +1,15 @@
 __author__      = "Celest"
-import requests
 import urllib.request
-import json
+import requests
 import click
+import json
 import os
-
-click.secho(f"\nBook ID?", fg="green")
-Cid = input(">>")[2:]
 
 
 ########## RETRIEVING GENERAL METADATA ##########
+
+click.secho(f"\nBook ID?", fg="green")
+Cid = input(">>")[2:] # To replace with click stuff whenever I got time
 
 # retrieving JSON data from requested preview
 Cid_Url = urllib.request.urlopen("https://viewer-trial.bookwalker.jp/trial-page/c?cid="+Cid+"&BID=0")
