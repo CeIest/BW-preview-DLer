@@ -87,6 +87,8 @@ def bookrunning(id):
         Meta_Contents = Book_Metadata["configuration"]["contents"]
 
         Pages_Count_Name = 0
+        Pad = '0'
+        Nnn = 3
 
         # Doing the process for each Chapters ("contents")
         for d in Meta_Contents:
@@ -112,7 +114,7 @@ def bookrunning(id):
                 Save_Pages_Path = Pages_Path + "/"
                 os.makedirs(Save_Pages_Path, exist_ok=True)
                 with open(
-                    Save_Pages_Path + "/" + str(Pages_Count_Name) + ".jpg", "wb") as outfile:
+                    Save_Pages_Path + "/i-" + str(Pages_Count_Name).rjust(Nnn, Pad) + ".jpg", "wb") as outfile:
                     outfile.write(Save.content)
 
         click.secho(f"---------------------------------------", fg="bright_cyan")
