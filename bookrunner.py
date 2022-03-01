@@ -98,7 +98,8 @@ def bookrunning(id):
             Page_Count = Book_Metadata[Key_Name]["FileLinkInfo"]["PageCount"]
 
             for i in range(Page_Count):
-                click.secho(f"Downloading " + os.path.basename(Key_Name) + " page " + str(i), fg="white")
+                Pages_Num = i + 1
+                click.secho(f"Downloading " + os.path.basename(Key_Name) + " page " + str(Pages_Num), fg="white")
                 Page_URL = Base_URL + Key_Name + "/" + str(i) + ".jpeg" + Auth_String
                 Pages_Count_Name += 1
 
