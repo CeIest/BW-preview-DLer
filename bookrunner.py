@@ -62,7 +62,7 @@ def bookrunning(id):
         response = urllib.request.urlopen(Metadata_Link)
         Book_Metadata = json.loads(response.read())
         # Parse & download it
-        with open(Book_Path + "/metadata.json", 'w') as outfile:
+        with open(Book_Path + "/metadata.json", "w") as outfile:
             json.dump(Book_Metadata, outfile, sort_keys=False, indent=2)
 
 
@@ -90,7 +90,7 @@ def bookrunning(id):
         Meta_Contents = Book_Metadata["configuration"]["contents"]
 
         Pages_Count_Name = 0
-        Pad = '0'
+        Pad = "0"
         Nnn = 3
 
         # Doing the process for each Chapters ("contents")
@@ -126,8 +126,8 @@ def bookrunning(id):
 
     else:
         click.secho(
-            f"\nWrong book ID, or the preview isn't released yet.\nMake sure your ID looks like this:\nde5bddb97a-1848-469f-bd3d-c0b926b8cbd3", fg="red")
-
+        	f"\nWrong book ID, or the preview isn't released yet.\nMake sure your ID looks like this:\nde5bddb97a-1848-469f-bd3d-c0b926b8cbd3",
+            fg="red",)
 
 if __name__ == "__main__":
     bookrunning()
