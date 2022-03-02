@@ -57,9 +57,15 @@ def bookrunning(id):
 
         ########## RETRIEVING PREVIEW METADATA ##########
 
-        # Retrieving the book's metadata and download it
+        # Retrieving the book's metadata
         Metadata_Link = Base_URL + "configuration_pack.json" + Auth_String
-        urllib.request.urlretrieve(Metadata_Link, Book_Path + "/metadata.json")
+        response = urllib.request.urlopen(Metadata_Link)
+        Book_Metadata = json.loads(response.read())
+        # Parse & download it
+        with open(Book_Path + "/metadata.json", 'w') as outfile:
+            json.dump(Book_Metadata, outfile, sort_keys=False, indent=2)
+
+
 
         # To-do: Save more metadata stuff in the future
 
@@ -79,9 +85,6 @@ def bookrunning(id):
         # All the chapters are their own values inside the JSON file, each of them contain a "pagecount" value
         # exemple: "item/xhtml/p-002.xhtml"."FileLinkInfo"."PageCount": 13
 
-        # Re-calling the metadata link for now because if I load the JSON file it returns reading errors
-        Book_Metadata = urllib.request.urlopen(Metadata_Link)
-        Book_Metadata = json.loads(Book_Metadata.read())
 
         # Reading the "configuration"."contents"
         Meta_Contents = Book_Metadata["configuration"]["contents"]
