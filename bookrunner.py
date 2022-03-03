@@ -62,8 +62,8 @@ def bookrunning(id):
         response = urllib.request.urlopen(Metadata_Link)
         Book_Metadata = json.loads(response.read())
         # Parse & download it
-        with open(Book_Path + "/metadata.json", "w") as outfile:
-            json.dump(Book_Metadata, outfile, sort_keys=False, indent=2)
+        with open(Book_Path + "/metadata.json", 'wb') as fp:
+            fp.write(json.dumps(Book_Metadata, ensure_ascii=False, indent=2).encode("utf8"))
 
 
 
