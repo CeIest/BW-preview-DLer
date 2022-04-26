@@ -4,6 +4,7 @@ import requests
 import click
 import json
 import os
+import re
 
 
 ########## RETRIEVING GENERAL METADATA ##########
@@ -30,6 +31,7 @@ def bookrunning(id):
 
         Base_URL = Data["url"]
         Book_Name = Data["cti"]
+        Book_Name = re.sub(r'[^\w\-_\. ]', '_', Book_Name)
         Lp = Data["lp"]
         Cty = Data["cty"]
         Lin = Data["lin"]
