@@ -31,7 +31,8 @@ def bookrunning(id):
 
         Base_URL = Data["url"]
         Book_Name = Data["cti"]
-        Book_Name = re.sub(':',  '_', Book_Name) # Do the same for '/'s
+        Book_Name = re.sub(':',  '：', Book_Name)
+        Book_Name = re.sub('/',  '／', Book_Name)
         Lp = Data["lp"]
         Cty = Data["cty"]
         Lin = Data["lin"]
