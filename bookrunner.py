@@ -10,7 +10,7 @@ import re
 ########## RETRIEVING GENERAL METADATA ##########
 @click.command()
 @click.option(
-    "--ID",
+    "--ID", "-ID", "--id", "-id",
     prompt="ID of the book?\n>>",
     help="ID of the BookWalker book, taken from its URL.",
 )
