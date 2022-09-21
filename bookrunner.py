@@ -15,11 +15,11 @@ import re
     help="ID of the BookWalker book, taken from its URL.",
 )
 def bookrunning(id):
-    id = id[2:]
+    S_id = id[2:]
 
     # retrieving JSON data from requested preview
     Cid_Url = urllib.request.urlopen(
-        "https://viewer-trial.bookwalker.jp/trial-page/c?cid=" + id + "&BID=0"
+        "https://viewer-trial.bookwalker.jp/trial-page/c?cid=" + S_id + "&BID=0"
     )
     # Loading JSON data of the page
     Data = json.loads(Cid_Url.read())
@@ -69,8 +69,19 @@ def bookrunning(id):
             fp.write(json.dumps(Book_Metadata, ensure_ascii=False, indent=2).encode("utf8"))
 
 
+        # Downloading HD cover
+        Original_Book_URL = "https://bookwalker.jp/" + id
+        Cover_r = requests.get(Original_Book_URL)
+        Cover_r = re.search(r'<meta property="og:image" content="https://c.bookwalker.jp/(\d+)/t_700x780.jpg">',
+                                Cover_r.text).group(1)
 
-        # To-do: Save more metadata stuff in the future
+        click.secho(f"Downloading HD cover", fg="white")
+        HDcover_URL = "https://c.bookwalker.jp/coverImage_" + str(int(str(Cover_r)[::-1]) - 1) + ".jpg"
+        Cover_Save = requests.get(HDcover_URL)
+        with open(Book_Path + "/" + "Cover" + ".jpg", "wb") as outfile:
+            outfile.write(Cover_Save.content)
+        
+
 
         ########## RETRIEVING PREVIEW METADATA ##########
 
