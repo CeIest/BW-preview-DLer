@@ -7,8 +7,6 @@ setup(
     license='MIT',
     author="Celest",
     author_email='hello@celest.moe',
-    packages=find_packages('src'),
-    package_dir={'': 'src'},
     url='https://github.com/CeIest/BW-preview-DLer',
     install_requires=[
           'requests',
