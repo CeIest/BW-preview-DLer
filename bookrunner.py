@@ -7,22 +7,6 @@ import os
 import re
 
 
-########## RETRIEVING GENERAL METADATA ##########
-@click.command()
-@click.option(
-    "--ID", "-ID", "--id", "-id",
-    prompt="ID of the book?\n>>",
-    help="ID of the BookWalker book, taken from its URL.",
-)
-def bookrunning(id):
-    S_id = id[2:]
-
-    # retrieving JSON data from requested preview
-    Cid_Url = urllib.request.urlopen(
-        "https://viewer-trial.bookwalker.jp/trial-page/c?cid=" + S_id + "&BID=0"
-    )
-    # Loading JSON data of the page
-    Data = json.loads(Cid_Url.read())
 
 
 if len(sys.argv) > 1:

@@ -8,7 +8,7 @@ Disclaimer: this script does ***NOT*** download or rip the paid ebooks from Book
 
 Install the required dependencies...
 ```bash
-pip install requests urllib3 click
+pip install requests click
 ```
 ... and simply run the script.
 ```bash
