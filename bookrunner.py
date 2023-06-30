@@ -1,8 +1,8 @@
 __author__ = "Celest"
-import urllib.request
 import requests
 import click
 import json
+import sys
 import os
 import re
 
@@ -24,124 +24,106 @@ def bookrunning(id):
     # Loading JSON data of the page
     Data = json.loads(Cid_Url.read())
 
-    # Reading values from JSON data
-    Status = Data["status"]
 
-    if Status == "200":
-
-        Base_URL = Data["url"]
-        Book_Name = Data["cti"]
-        Book_Name = re.sub(':',  '：', Book_Name)
-        Book_Name = re.sub('/',  '／', Book_Name)
-        Lp = Data["lp"]
-        Cty = Data["cty"]
-        Lin = Data["lin"]
-        Lpd = Data["lpd"]
-        Bs = Data["bs"]
-        Auth_info = Data["auth_info"]
-        Pfcd = Auth_info["pfCd"]
-        Policy = Auth_info["Policy"]
-        Signature = Auth_info["Signature"]
-        Key_Pair_Id = Auth_info["Key-Pair-Id"]
-
-        click.secho(f"\nDownloading {Book_Name}'s preview files...", fg="green")
-        click.secho(f"---------------------------------------", fg="bright_cyan")
-
-        # Creating authentification string
-        Auth_String = '?pfCd=' + Pfcd + '&Policy=' + Policy + '&Signature=' + Signature + '&Key-Pair-Id=' + Key_Pair_Id
-
-        # Creating book path
-        Book_Path = "Preview " + Book_Name
-        os.makedirs(Book_Path, exist_ok=True)
-
-        # If LN = 0. If Manga = 1.
-        if Cty == 0:
-            Base_URL = Base_URL + "normal_default/"
-
-        ########## RETRIEVING PREVIEW METADATA ##########
-
-        # Retrieving the book's metadata
-        Metadata_Link = Base_URL + "configuration_pack.json" + Auth_String
-        response = urllib.request.urlopen(Metadata_Link)
-        Book_Metadata = json.loads(response.read())
-        # Parse & download it
-        with open(Book_Path + "/metadata.json", 'wb') as fp:
-            fp.write(json.dumps(Book_Metadata, ensure_ascii=False, indent=2).encode("utf8"))
+if len(sys.argv) > 1:
+    buid = sys.argv[1]
+else:
+    buid = input("Book ID?\n>>")
 
 
-        # Downloading HD cover
-        Original_Book_URL = "https://bookwalker.jp/" + id
-        Cover_r = requests.get(Original_Book_URL)
-        Cover_r = re.search(r'<meta property="og:image" content="https://c.bookwalker.jp/(\d+)/t_700x780.jpg">',
-                                Cover_r.text).group(1)
-
-        click.secho(f"Downloading HD cover", fg="white")
-        HDcover_URL = "https://c.bookwalker.jp/coverImage_" + str(int(str(Cover_r)[::-1]) - 1) + ".jpg"
-        Cover_Save = requests.get(HDcover_URL)
-        with open(Book_Path + "/" + "Cover" + ".jpg", "wb") as outfile:
-            outfile.write(Cover_Save.content)
-        
+if buid.startswith("de") and len(buid) == 38:
+    cover_buid = buid
+    buid = buid[2:]
+else:
+    cover_buid = f"de{buid}"
 
 
-        ########## RETRIEVING PREVIEW METADATA ##########
-
-        # Creating chapters path
-        Chapters_Path = Book_Path + "/Chapters"
-        os.makedirs(Chapters_Path, exist_ok=True)
-
-        # Creating pages path
-        Pages_Path = Book_Path + "/Pages"
-        os.makedirs(Pages_Path, exist_ok=True)
-
-        # ##Explaining the concept:
-        # In the JSON file;
-        # "configuration"."contents" contains a list of all the chapter paths which are in the "file" value each
-        # All the chapters are their own values inside the JSON file, each of them contain a "pagecount" value
-        # exemple: "item/xhtml/p-002.xhtml"."FileLinkInfo"."PageCount": 13
+BID_response = requests.get(f"https://viewer-trial.bookwalker.jp/trial-page/c?cid={buid}&BID=0")
+BID_data = json.loads(BID_response.content)
 
 
-        # Reading the "configuration"."contents"
-        Meta_Contents = Book_Metadata["configuration"]["contents"]
+if BID_data["status"] != "200":
+    click.secho(f"\nWrong book ID, or the preview isn't released yet.", fg="red")
+    exit()
 
-        Pages_Count_Name = 0
-        Pad = "0"
-        Nnn = 3
 
-        # Doing the process for each Chapters ("contents")
-        for d in Meta_Contents:
 
-            Key_Name = d["file"]
+base_URL = BID_data["url"]
 
-            Page_Count = Book_Metadata[Key_Name]["FileLinkInfo"]["PageCount"]
+bookname = BID_data["cti"]
+bookname = re.sub(':',  '：', bookname)
+bookname = re.sub('/',  '／', bookname)
 
-            for i in range(Page_Count):
-                Pages_Num = i + 1
-                click.secho(f"Downloading " + os.path.basename(Key_Name) + " page " + str(Pages_Num), fg="white")
-                Page_URL = Base_URL + Key_Name + "/" + str(i) + ".jpeg" + Auth_String
-                Pages_Count_Name += 1
 
-                # Saving the pages. Doing it in a weird process because BookWalker blocks some kind of script scraping
-                Save = requests.get(Page_URL)
 
-                Chapters_Name = os.path.basename(d["file"])
-                Save_Path = Chapters_Path + "/" + Chapters_Name
-                os.makedirs(Save_Path, exist_ok=True)
-                with open(Save_Path + "/" + str(i) + ".jpg", "wb") as outfile:
-                    outfile.write(Save.content)
+click.secho(f"\nDownloading {bookname}'s preview files...", fg="green")
+click.secho(f"---------------------------------------", fg="bright_cyan")
 
-                Save_Pages_Path = Pages_Path + "/"
-                os.makedirs(Save_Pages_Path, exist_ok=True)
-                with open(
-                    Save_Pages_Path + "/i-" + str(Pages_Count_Name).rjust(Nnn, Pad) + ".jpg", "wb") as outfile:
-                    outfile.write(Save.content)
 
-        click.secho(f"---------------------------------------", fg="bright_cyan")
-        click.secho(f"Download finished.", fg="green")
+authinfo = BID_data["auth_info"]
+authstring = f'?pfCd={authinfo["pfCd"]}&Policy={authinfo["Policy"]}&Signature={authinfo["Signature"]}&Key-Pair-Id={authinfo["Key-Pair-Id"]}'
 
-    else:
-        click.secho(
-        	f"\nWrong book ID, or the preview isn't released yet.\nMake sure your ID looks like this:\nde5bddb97a-1848-469f-bd3d-c0b926b8cbd3",
-            fg="red",)
+bookpath = f"Preview {bookname}"
+os.makedirs(bookpath, exist_ok=True)
 
-if __name__ == "__main__":
-    bookrunning()
+
+
+if BID_data["cty"] == 0:    # If LN = 0. If Manga = 1.
+    base_URL = f"{base_URL}normal_default/"
+
+
+
+
+# Downloads metadata
+click.secho(f"Downloading metadata", fg="white")
+
+metadata_link = f"{base_URL}configuration_pack.json{authstring}"
+
+meta_response = requests.get(metadata_link)
+book_metadata = json.loads(meta_response.content)
+
+with open(f"{bookpath}/metadata.json", 'wb') as md:
+    md.write(json.dumps(book_metadata, ensure_ascii=False, indent=2).encode("utf8"))
+
+
+# Downloads HD cover
+click.secho(f"Downloading HD cover", fg="white")
+
+cover_response = requests.get(f"https://bookwalker.jp/{cover_buid}")
+
+cover_str = re.search(r'<meta property="og:image" content="https://c.bookwalker.jp/(\d+)/t_700x780.jpg">', cover_response.text).group(1)
+cover = requests.get(f"https://c.bookwalker.jp/coverImage_{str(int(str(cover_str)[::-1]) - 1)}.jpg")
+
+with open(f"{bookpath}/Cover.jpg", "wb") as cf:
+    cf.write(cover.content)
+    
+
+
+
+
+
+
+pagespath = f"{bookpath}/Pages"
+os.makedirs(pagespath, exist_ok=True)
+
+
+d_count = 1
+for d in book_metadata["configuration"]["contents"]:
+
+    keyname = d["file"]
+
+    for i in range(book_metadata[keyname]["FileLinkInfo"]["PageCount"]):
+
+        click.secho(f"Downloading {os.path.basename(keyname)} page {i + 1}", fg="white")
+
+        page_response = requests.get(f"{base_URL}{keyname}/{i}.jpeg{authstring}")
+
+        with open(f"{pagespath}/i-{d_count:03d}.jpg", "wb") as pf:
+            pf.write(page_response.content)
+        d_count += 1
+
+    
+click.secho(f"---------------------------------------", fg="bright_cyan")
+click.secho(f"Download finished.", fg="green")
+
+

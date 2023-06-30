@@ -12,7 +12,7 @@ pip install requests urllib3 click
 ```
 ... and simply run the script.
 ```bash
-./bookrunner.py -ID [Book ID here]
+./bookrunner.py [Book ID here]
 ```
 
 The book ID can be found in its respective url. 
