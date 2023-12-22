@@ -7,13 +7,6 @@ import os
 import re
 
 
-def gethdcoverlink(cover_buid):
-    cover_response = requests.get(f"https://bookwalker.jp/{cover_buid}")
-    cover_str = re.search(r'<meta property="og:image" content="https://c.bookwalker.jp/(\d+)/t_700x780.jpg">', cover_response.text).group(1)
-    hdcover_url = f"https://c.bookwalker.jp/coverImage_{str(int(str(cover_str)[::-1]) - 1)}.jpg"
-    return hdcover_url
-
-
 
 
 if len(sys.argv) > 1:
@@ -27,7 +20,6 @@ if buid.startswith("de") and len(buid) == 38:
     buid = buid[2:]
 else:
     cover_buid = f"de{buid}"
-hdcoverlink = gethdcoverlink(cover_buid)
 
 
 BID_response = requests.get(f"https://viewer-trial.bookwalker.jp/trial-page/c?cid={buid}&BID=0")
@@ -36,8 +28,6 @@ BID_data = json.loads(BID_response.content)
 
 if BID_data["status"] != "200":
     click.secho(f"\nWrong book ID, or the preview isn't released yet.", fg="red")
-    if len(requests.get(hdcoverlink).content) < 32050: # 32050 is "NOW PRINTING"'s cover filesize
-        print(hdcoverlink)
     exit()
 
 
@@ -57,7 +47,7 @@ click.secho(f"---------------------------------------", fg="bright_cyan")
 authinfo = BID_data["auth_info"]
 authstring = f'?pfCd={authinfo["pfCd"]}&Policy={authinfo["Policy"]}&Signature={authinfo["Signature"]}&Key-Pair-Id={authinfo["Key-Pair-Id"]}'
 
-bookpath = f"Books/Preview {bookname}"
+bookpath = f"Preview {bookname}"
 os.makedirs(bookpath, exist_ok=True)
 
 
@@ -82,8 +72,14 @@ with open(f"{bookpath}/metadata.json", 'wb') as md:
 
 # Downloads HD cover
 click.secho(f"Downloading HD cover", fg="white")
+
+cover_response = requests.get(f"https://bookwalker.jp/{cover_buid}")
+
+cover_str = re.search(r'<meta property="og:image" content="https://c.bookwalker.jp/(\d+)/t_700x780.jpg">', cover_response.text).group(1)
+cover = requests.get(f"https://c.bookwalker.jp/coverImage_{str(int(str(cover_str)[::-1]) - 1)}.jpg")
+
 with open(f"{bookpath}/Cover.jpg", "wb") as cf:
-    cf.write(requests.get(hdcoverlink).content)
+    cf.write(cover.content)
     
 
 
@@ -102,7 +98,7 @@ for d in book_metadata["configuration"]["contents"]:
 
     for i in range(book_metadata[keyname]["FileLinkInfo"]["PageCount"]):
 
-        click.secho(f"Downloading {os.path.basename(keyname)}    as Page {i + 1}", fg="white")
+        click.secho(f"Downloading {os.path.basename(keyname)} page {i + 1}", fg="white")
 
         page_response = requests.get(f"{base_URL}{keyname}/{i}.jpeg{authstring}")
 
@@ -113,3 +109,5 @@ for d in book_metadata["configuration"]["contents"]:
     
 click.secho(f"---------------------------------------", fg="bright_cyan")
 click.secho(f"Download finished.", fg="green")
+
+
