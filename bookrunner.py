@@ -75,11 +75,15 @@ click.secho(f"Downloading HD cover", fg="white")
 
 cover_response = requests.get(f"https://bookwalker.jp/{cover_buid}")
 
-cover_str = re.search(r'<meta property="og:image" content="https://c.bookwalker.jp/(\d+)/t_700x780.jpg">', cover_response.text).group(1)
-cover = requests.get(f"https://c.bookwalker.jp/coverImage_{str(int(str(cover_str)[::-1]) - 1)}.jpg")
+try:
+    cover_str = re.search(r'<meta property="og:image" content="https://c.bookwalker.jp/(\d+)/t_700x780.jpg">', cover_response.text).group(1)
+    cover = requests.get(f"https://c.bookwalker.jp/coverImage_{str(int(str(cover_str)[::-1]) - 1)}.jpg")
 
-with open(f"{bookpath}/Cover.jpg", "wb") as cf:
-    cf.write(cover.content)
+    with open(f"{bookpath}/Cover.jpg", "wb") as cf:
+        cf.write(cover.content)
+except AttributeError as cve:
+    click.secho(f"Could not download cover: '{cve}'. Skipping...", fg="red")
+
     
 
 
