@@ -14,6 +14,7 @@ if len(sys.argv) > 1:
 else:
     buid = input("Book ID?\n>>")
 
+buid = re.sub(r"https?://(www\.)?bookwalker\.jp/", "", buid).strip("/")
 
 if buid.startswith("de") and len(buid) == 38:
     cover_buid = buid
